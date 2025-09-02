@@ -1,6 +1,5 @@
 from fastapi import FastAPI, UploadFile, File
 from pydantic import BaseModel
-from typing import List
 from mangum import Mangum
 from PIL import Image
 import io
@@ -20,7 +19,7 @@ reference = {}
 #Incoming vector as json handling
 #Input should be a json list of vector features
 class toMatch(BaseModel):
-	embedding: List[float]
+	embedding: list[float]
 
 #Outgoing match results 
 class Match(BaseModel):
@@ -31,7 +30,7 @@ class Match(BaseModel):
 #Returns vector embedding of an image from CLIP fine-tuned model
 #Takes an image as payload
 @app.post("/embed")
-def embed_image(file: UploadFile = File(...)) -> List[float]:
+def embed_image(file: UploadFile = File(...)) -> list[float]:
 	
 	content = file.read()
 	img = Image.open(io.BytesIO(content))
@@ -72,7 +71,7 @@ def match_t1(req: toMatch) -> Match:
 #Ex request using curl: 
 # curl -X POST -H "Content-Type:application/json" -d '{"embedding":list[768]}' "API_URL/match1"
 @app.post("/match5")
-def match_t5(req: toMatch) -> List[Match]:
+def match_t5(req: toMatch) -> list[Match]:
 	
 	# TODO:
 	# - Take the input embedding from the request.
