@@ -4,6 +4,8 @@ mangum==0.19.0
 pandas==2.3.1
 pillow==11.3.0
 pydantic==2.11.7
-typing==3.7.4.3
 uvicorn==0.35.0
 python-multipart==0.0.20
+torch==2.3.1+cpu
+-f https://download.pytorch.org/whl/cpu/torch_stable.html
+sentence_transformers

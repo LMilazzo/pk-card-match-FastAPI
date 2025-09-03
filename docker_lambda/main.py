@@ -1,7 +1,7 @@
 from fastapi import FastAPI, UploadFile, File
 from pydantic import BaseModel
-from typing import List
 from mangum import Mangum
+from sentence_transformers import SentenceTransformer
 from PIL import Image
 import io
 
@@ -16,29 +16,25 @@ async def root():
 #Likely will be loaded from another file or DB
 reference = {}
 
+model = SentenceTransformer('clip-ViT-L-14')
 
 #Incoming vector as json handling
 #Input should be a json list of vector features
 class toMatch(BaseModel):
-	embedding: List[float]
+	embedding: list[float]
 
 #Outgoing match results 
 class Match(BaseModel):
 	id: str
 	score: float
 
-
 #Returns vector embedding of an image from CLIP fine-tuned model
 #Takes an image as payload
 @app.post("/embed")
-def embed_image(file: UploadFile = File(...)) -> List[float]:
-	
-	content = file.read()
-	img = Image.open(io.BytesIO(content))
-	
-	
+async def embed_image(file: UploadFile = File(...)) -> list[float]:
+
 	# - Read the image file from the UploadFile object.
-	content = file.read()
+	content =  await file.read()
 
 	# - Convert it to a PIL Image (e.g., using Image.open and BytesIO).
 	img = Image.open(io.BytesIO(content))
@@ -47,9 +43,10 @@ def embed_image(file: UploadFile = File(...)) -> List[float]:
 	# - Preprocess the image as required by the CLIP model.
 	# - Pass the image through the fine-tuned CLIP model.
 	# - Extract the embedding (usually a 512D or 768D vector).
+	emb = model.encode(img)
 
 	# - Return the embedding as a list of floats (JSON serializable).
-	return [0.0] * 768
+	return emb.tolist()
 
 
 
@@ -72,7 +69,7 @@ def match_t1(req: toMatch) -> Match:
 #Ex request using curl: 
 # curl -X POST -H "Content-Type:application/json" -d '{"embedding":list[768]}' "API_URL/match1"
 @app.post("/match5")
-def match_t5(req: toMatch) -> List[Match]:
+def match_t5(req: toMatch) -> list[Match]:
 	
 	# TODO:
 	# - Take the input embedding from the request.
